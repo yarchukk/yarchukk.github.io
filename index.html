@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cali Plan">
+<meta name="theme-color" content="#0e0e0e">
+<link rel="manifest" href="manifest.json">
+<title>Calisthenics Training Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --accent: #c8f55a;
+    --accent2: #5af5c8;
+    --accent3: #f5a55a;
+    --text: #f0ede8;
+    --muted: #888;
+    --push: #f5a55a;
+    --pull: #5ac8f5;
+    --legs: #c8f55a;
+    --rest: #555;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    /* Mobile layout: header + sticky nav + scrollable content + bottom nav */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── INSTALL BANNER ── */
+  #install-banner {
+    display: none;
+    position: fixed;
+    bottom: calc(64px + var(--safe-bottom));
+    left: 12px; right: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    padding: 14px 16px;
+    z-index: 999;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .install-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .install-icon {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 20px;
+  }
+
+  .install-text { flex: 1; }
+  .install-text strong { font-size: 13px; color: var(--text); display: block; }
+  .install-text span { font-size: 12px; color: var(--muted); }
+
+  .install-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+  .btn-install {
+    flex: 1;
+    padding: 9px 0;
+    background: var(--accent);
+    color: #0e0e0e;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .btn-dismiss {
+    padding: 9px 14px;
+    background: none;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: calc(var(--safe-top) + 1.5rem) 1.25rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .header-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 10vw, 4.5rem);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 1.25rem;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .header-stats {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── SCROLL AREA ── */
+  .scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    display: flex;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding-bottom: var(--safe-bottom);
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .bottom-nav::-webkit-scrollbar { display: none; }
+
+  .nav-btn {
+    flex: 1;
+    min-width: 52px;
+    padding: 10px 6px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    transition: color 0.15s;
+    border-top: 2px solid transparent;
+  }
+
+  .nav-btn svg { width: 20px; height: 20px; }
+  .nav-btn span { font-size: 9px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+  .nav-btn.active { color: var(--accent); border-top-color: var(--accent); }
+
+  /* ── MAIN CONTENT ── */
+  main { padding: 1.25rem; padding-bottom: 1rem; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.2rem;
+    line-height: 1;
+  }
+
+  .section-sub {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ── EX ROW ── */
+  .ex-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+
+  .ex-row:last-child { border-bottom: none; }
+
+  .ex-name { font-weight: 500; font-size: 14px; }
+  .ex-note { font-size: 11px; color: var(--muted); margin-top: 2px; font-style: italic; line-height: 1.4; }
+  .ex-detail { font-size: 11px; color: var(--muted); text-align: right; white-space: nowrap; line-height: 1.5; }
+
+  /* ── TIP ── */
+  .tip {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.65rem 0.9rem;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 0.75rem;
+  }
+
+  .tip strong { color: var(--text); font-weight: 500; }
+  .tip.warn { border-left-color: var(--accent3); }
+  .tip.info { border-left-color: var(--accent2); }
+
+  /* ── WEEK GRID ── */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 1.25rem;
+  }
+
+  .day-pill {
+    border-radius: 8px;
+    padding: 8px 4px;
+    text-align: center;
+    border: 1px solid transparent;
+  }
+
+  .day-name {
+    font-size: 9px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .day-type {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+  }
+
+  .day-pill.push { background: rgba(245,165,90,0.1); border-color: rgba(245,165,90,0.25); }
+  .day-pill.push .day-type { color: var(--push); }
+  .day-pill.pull { background: rgba(90,200,245,0.1); border-color: rgba(90,200,245,0.25); }
+  .day-pill.pull .day-type { color: var(--pull); }
+  .day-pill.legs { background: rgba(200,245,90,0.1); border-color: rgba(200,245,90,0.25); }
+  .day-pill.legs .day-type { color: var(--legs); }
+  .day-pill.rest { background: rgba(85,85,85,0.15); border-color: rgba(85,85,85,0.3); }
+  .day-pill.rest .day-type { color: var(--rest); }
+
+  /* ── SESSION TABS ── */
+  .session-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1.25rem;
+  }
+
+  .stab {
+    flex: 1;
+    padding: 8px 0;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--muted);
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .stab.push.active { background: rgba(245,165,90,0.15); border-color: var(--push); color: var(--push); }
+  .stab.pull.active { background: rgba(90,200,245,0.15); border-color: var(--pull); color: var(--pull); }
+  .stab.legs.active { background: rgba(200,245,90,0.15); border-color: var(--legs); color: var(--legs); }
+
+  .day-section { display: none; }
+  .day-section.active { display: block; }
+
+  /* ── PROGRESSION ── */
+  .prog-chain {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .prog-chain:last-child { border-bottom: none; }
+
+  .prog-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .prog-arrow { color: var(--muted); font-size: 11px; }
+
+  /* ── SKILLS ── */
+  .skill-row {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-row:last-child { border-bottom: none; }
+
+  .skill-num {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .skill-name { font-weight: 500; font-size: 13px; }
+  .skill-when { font-size: 11px; color: var(--muted); }
+
+  .skill-badge {
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ── NUTRITION ── */
+  .macro-row { margin-bottom: 1.1rem; }
+  .macro-head { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+  .macro-name { font-weight: 500; }
+  .macro-val { color: var(--muted); }
+  .bar-bg { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+
+  /* ── TIME ROW ── */
+  .time-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .time-row:last-child { border-bottom: none; font-weight: 500; }
+  .time-val { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; color: var(--accent); }
+
+  /* ── LABEL ── */
+  .label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+    margin-top: 1.5rem;
+  }
+
+  .label:first-child { margin-top: 0; }
+
+  /* ── DELOAD ── */
+  .deload-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-top: 0.75rem;
+  }
+
+  .big-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  /* ── IOS INSTALL GUIDE ── */
+  #ios-guide {
+    display: none;
+    position: fixed;
+    bottom: calc(64px + var(--safe-bottom) + 8px);
+    left: 12px; right: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    padding: 16px;
+    z-index: 999;
+    animation: slideUp 0.3s ease;
+  }
+
+  .ios-steps { list-style: none; margin-top: 10px; }
+  .ios-steps li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .ios-steps li:last-child { border-bottom: none; }
+  .ios-steps .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #0e0e0e;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ios-steps strong { color: var(--text); }
+
+  #ios-close {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 9px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── INSTALL BANNER (Android/Chrome) ── -->
+<div id="install-banner">
+  <div class="install-inner">
+    <div class="install-icon">💪</div>
+    <div class="install-text">
+      <strong>Install as App</strong>
+      <span>Works offline · No browser needed</span>
+    </div>
+  </div>
+  <div class="install-actions">
+    <button class="btn-install" id="btn-install">Install</button>
+    <button class="btn-dismiss" id="btn-dismiss">Later</button>
+  </div>
+</div>
+
+<!-- ── iOS INSTALL GUIDE ── -->
+<div id="ios-guide">
+  <strong style="font-size: 13px; color: var(--text);">Add to Home Screen</strong>
+  <ul class="ios-steps">
+    <li><span class="step-num">1</span><span>Tap the <strong>Share</strong> button (□↑) in Safari</span></li>
+    <li><span class="step-num">2</span><span>Scroll down and tap <strong>Add to Home Screen</strong></span></li>
+    <li><span class="step-num">3</span><span>Tap <strong>Add</strong> — done! Open it like any app</span></li>
+  </ul>
+  <button id="ios-close">Got it</button>
+</div>
+
+<!-- ── HEADER ── -->
+<header>
+  <p class="header-label">Personalized Training Plan · 2025</p>
+  <h1>Calis<span>thenics</span><br>Plan</h1>
+  <div class="header-stats">
+    <div class="stat"><span class="stat-val">19</span><span class="stat-label">Years old</span></div>
+    <div class="stat"><span class="stat-val">67kg</span><span class="stat-label">Body weight</span></div>
+    <div class="stat"><span class="stat-val">178cm</span><span class="stat-label">Height</span></div>
+    <div class="stat"><span class="stat-val">30min</span><span class="stat-label">Daily window</span></div>
+    <div class="stat"><span class="stat-val">5–7×</span><span class="stat-label">Per week</span></div>
+  </div>
+</header>
+
+<!-- ── SCROLLABLE CONTENT ── -->
+<div class="scroll-area">
+<main>
+
+  <!-- WARM-UP -->
+  <div id="warmup" class="section active">
+    <h2 class="section-title">Warm-Up</h2>
+    <p class="section-sub">6 minutes · every single session, no exceptions</p>
+
+    <p class="label">Phase 1 — Wrist Prep · 1.5 min</p>
+    <div class="card">
+      <div class="ex-row">
+        <div><div class="ex-name">Wrist circles</div></div>
+        <div class="ex-detail">30 sec each dir.</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Finger taps on floor</div></div>
+        <div class="ex-detail">20 reps</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Reverse hand rock</div><div class="ex-note">Fingers toward body, gently rock forward</div></div>
+        <div class="ex-detail">10 slow reps</div>
+      </div>
+    </div>
+
+    <p class="label">Phase 2 — Scapular Activation · 3 min</p>
+    <div class="card">
+      <div class="ex-row">
+        <div><div class="ex-name">Arm circles + shoulder dislocations</div><div class="ex-note">Use a towel or resistance band</div></div>
+        <div class="ex-detail">30 sec</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Scapular push-ups</div><div class="ex-note">In plank — protract/retract blades, no elbow bend</div></div>
+        <div class="ex-detail">15 reps</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Scapular pull-ups</div><div class="ex-note">Dead hang — shrug shoulders down and back, then relax</div></div>
+        <div class="ex-detail">10 reps</div>
+      </div>
+    </div>
+
+    <p class="label">Phase 3 — Core & Lower Body · 1.5 min</p>
+    <div class="card">
+      <div class="ex-row">
+        <div><div class="ex-name">Hollow body hold</div><div class="ex-note">Lower back pressed flat, arms overhead</div></div>
+        <div class="ex-detail">30 sec</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Bodyweight squats</div></div>
+        <div class="ex-detail">10 reps</div>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Push days:</strong> add 5 extra shoulder dislocations after phase 2.<br>
+      <strong>Pull days:</strong> add 5 extra scapular pull-ups before moving on.
+    </div>
+  </div>
+
+  <!-- WEEKLY SPLIT -->
+  <div id="split" class="section">
+    <h2 class="section-title">Weekly Split</h2>
+    <p class="section-sub">Push / Pull / Legs — 6 days on, 1 rest</p>
+
+    <div class="week-grid">
+      <div class="day-pill push"><div class="day-name">Mon</div><div class="day-type">Push</div></div>
+      <div class="day-pill pull"><div class="day-name">Tue</div><div class="day-type">Pull</div></div>
+      <div class="day-pill legs"><div class="day-name">Wed</div><div class="day-type">Legs</div></div>
+      <div class="day-pill push"><div class="day-name">Thu</div><div class="day-type">Push+</div></div>
+      <div class="day-pill pull"><div class="day-name">Fri</div><div class="day-type">Pull+</div></div>
+      <div class="day-pill legs"><div class="day-name">Sat</div><div class="day-type">Legs</div></div>
+      <div class="day-pill rest"><div class="day-name">Sun</div><div class="day-type">Rest</div></div>
+    </div>
+
+    <div class="tip info">
+      <strong>Mon / Tue / Wed</strong> = base volume sessions.<br>
+      <strong>Thu / Fri (+)</strong> = same workout + 5 min skill practice (handstand Thu, muscle-up transition Fri).<br>
+      <strong>Sat</strong> = legs + extra core work.
+    </div>
+
+    <p class="label">Time budget per session</p>
+    <div class="card">
+      <div class="time-row"><span>Warm-up</span><span class="time-val">6 min</span></div>
+      <div class="time-row"><span>Main work (3 exercises × 3 sets)</span><span class="time-val">17–18 min</span></div>
+      <div class="time-row"><span>Skill drill — Thu &amp; Fri only</span><span class="time-val">4–5 min</span></div>
+      <div class="time-row"><span>Total</span><span class="time-val">~27–29 min</span></div>
+    </div>
+  </div>
+
+  <!-- SESSIONS -->
+  <div id="sessions" class="section">
+    <h2 class="section-title">Sessions</h2>
+    <p class="section-sub">Full session = warm-up (6 min) + workout below</p>
+
+    <div class="session-tabs">
+      <button class="stab push active" onclick="showDay('push-day', this, 'push')">Push</button>
+      <button class="stab pull" onclick="showDay('pull-day', this, 'pull')">Pull</button>
+      <button class="stab legs" onclick="showDay('legs-day', this, 'legs')">Legs</button>
+    </div>
+
+    <!-- PUSH -->
+    <div id="push-day" class="day-section active">
+      <div class="tip warn" style="margin-bottom: 1rem;">
+        <strong>Rest times:</strong> 2 min after pike push-ups and dips · 90 sec after push-ups · 60 sec after plank holds
+      </div>
+      <div class="card">
+        <div class="ex-row">
+          <div><div class="ex-name">Pike push-ups</div><div class="ex-note">Weight forward on toes, elbows form a triangle at the bottom</div></div>
+          <div class="ex-detail">3 × 5–8<br>2 min rest</div>
+        </div>
+        <div class="ex-row">
+          <div><div class="ex-name">Push-ups</div><div class="ex-note">To near failure — core tight, elbows at 45°</div></div>
+          <div class="ex-detail">3 × max<br>90 sec rest</div>
+        </div>
+        <div class="ex-row">
+          <div><div class="ex-name">Dips on parallettes</div><div class="ex-note">⚠ Wk 1–3: negatives only (4 sec lowering). Wk 4+: full dips</div></div>
+          <div class="ex-detail">3 × 5–6<br>2 min rest</div>
+        </div>
+        <div class="ex-row">
+          <div><div class="ex-name">Planche lean hold</div><div class="ex-note">Protract shoulders, squeeze glutes, lean forward</div></div>
+          <div class="ex-detail">3 × 20–30 sec<br>60 sec rest</div>
+        </div>
+      </div>
+      <div class="tip">
+        <strong>Thu skill drill (5 min):</strong> Wall handstand — kick up, hold 5–10 sec, step down, repeat. 5–6 attempts. Start from week 3–4.
+      </div>
+    </div>
+
+    <!-- PULL -->
+    <div id="pull-day" class="day-section">
+      <div class="tip warn" style="margin-bottom: 1rem;">
+        <strong>Rest times:</strong> 2 min after pull-ups · 90 sec after rows and leg raises · 60 sec after tuck holds
+      </div>
+      <div class="card">
+        <div class="ex-row">
+          <div><div class="ex-name">Pull-ups</div><div class="ex-note">Strict — drive elbows down and back, lift chest to bar</div></div>
+          <div class="ex-detail">3 × 5–7<br>2 min rest</div>
+        </div>
+        <div class="ex-row">
+          <div><div class="ex-name">Inverted rows</div><div class="ex-note">Under bar — body straight, pull chest to bar</div></div>
+          <div class="ex-detail">3 × 8–12<br>90 sec rest</div>
+        </div>
+        <div class="ex-row">
+          <div><div class="ex-name">Hanging knee raises</div><div class="ex-note">No swinging — control both directions</div></div>
+          <div class="ex-detail">3 × 8–12<br>90 sec rest</div>
+        </div>
+        <div class="ex-row">
+          <div><div class="ex-name">Tuck front lever hold</div><div class="ex-note">Hips at shoulder level, knees tucked, arms straight</div></div>
+          <div class="ex-detail">3 × 5–10 sec<br>60 sec rest</div>
+        </div>
+      </div>
+      <div class="tip">
+        <strong>Fri skill drill (5 min):</strong> Banded muscle-up transitions. Start ONLY when you can do 10 clean pull-ups.
+      </div>
+    </div>
+
+    <!-- LEGS -->
+    <div id="legs-day" class="day-section">
+      <div class="tip warn" style="margin-bottom: 1rem;">
+        <strong>Rest times:</strong> 90 sec between all sets · 60 sec after L-sit holds
+      </div>
+      <div class="card">
+        <div class="ex-row">
+          <div><div class="ex-name">Bodyweight squats</div><div class="ex-note">Thighs parallel or lower, chest up</div></div>
+          <div class="ex-detail">3 × 15–20<br>90 sec rest</div>
+        </div>
+        <div class="ex-row">
+          <div><div class="ex-name">Assisted pistol squats</div><div class="ex-note">Hold bar frame — let go a bit more each week</div></div>
+          <div class="ex-detail">3 × 5–8/leg<br>90 sec rest</div>
+        </div>
+        <div class="ex-row">
+          <div><div class="ex-name">Bulgarian split squats</div><div class="ex-note">Rear foot elevated on parallettes or chair</div></div>
+          <div class="ex-detail">3 × 8–12/leg<br>90 sec rest</div>
+        </div>
+        <div class="ex-row">
+          <div><div class="ex-name">L-sit on parallettes</div><div class="ex-note">Push shoulders down, legs straight out or bent knees</div></div>
+          <div class="ex-detail">3 × 10–20 sec<br>60 sec rest</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESSION -->
+  <div id="progression" class="section">
+    <h2 class="section-title">Progression</h2>
+    <p class="section-sub">When and how to make things harder</p>
+
+    <div class="tip" style="margin-bottom: 1.25rem;">
+      <strong>The rule:</strong> Advance when you hit the top of the rep range at RPE ≤ 7, two sessions in a row. Don't rush — tendons adapt slower than muscles.
+    </div>
+
+    <p class="label">Push progressions</p>
+    <div class="card">
+      <div class="prog-chain">
+        <span class="prog-item">Push-up negatives</span><span class="prog-arrow">→</span>
+        <span class="prog-item">Full push-ups</span><span class="prog-arrow">→</span>
+        <span class="prog-item">Decline push-ups</span><span class="prog-arrow">→</span>
+        <span class="prog-item">Archer push-ups</span>
+      </div>
+      <div class="prog-chain">
+        <span class="prog-item">Dip negatives (wk 1–3)</span><span class="prog-arrow">→</span>
+        <span class="prog-item">Full dips × 5</span><span class="prog-arrow">→</span>
+        <span class="prog-item">Weighted dips</span>
+      </div>
+      <div class="prog-chain">
+        <span class="prog-item">Pike push-ups</span><span class="prog-arrow">→</span>
+        <span class="prog-item">Elevated pike</span><span class="prog-arrow">→</span>
+        <span class="prog-item">Wall handstand</span>
+      </div>
+    </div>
+
+    <p class="label">Pull progressions</p>
+    <div class="card">
+      <div class="prog-chain">
+        <span class="prog-item">Pull-ups (~8 now)</span><span class="prog-arrow">→</span>
+        <span class="prog-item">L-sit pull-ups</span><span class="prog-arrow">→</span>
+        <span class="prog-item">Archer pull-ups</span><span class="prog-arrow">→</span>
+        <span class="prog-item">Weighted pull-ups</span>
+      </div>
+      <div class="prog-chain">
+        <span class="prog-item">Tuck front lever</span><span class="prog-arrow">→</span>
+        <span class="prog-item">Advanced tuck</span><span class="prog-arrow">→</span>
+        <span class="prog-item">One-leg FL</span>
+      </div>
+    </div>
+
+    <p class="label">Deload — every 6–8 weeks</p>
+    <div class="deload-card">
+      <div style="display:flex; align-items:baseline; gap:10px; margin-bottom: 0.6rem;">
+        <span class="big-num">50%</span>
+        <span style="color:var(--muted); font-size:12px;">cut in sets and reps for one full week</span>
+      </div>
+      <p style="font-size: 12px; color: var(--muted); line-height: 1.6;">Tendons genuinely need this planned rest. Don't skip deload weeks — you'll come back stronger every time.</p>
+    </div>
+  </div>
+
+  <!-- SKILLS -->
+  <div id="skills" class="section">
+    <h2 class="section-title">Skill Roadmap</h2>
+    <p class="section-sub">Follow this order strictly — skipping ahead stalls progress</p>
+
+    <div class="card">
+      <div class="skill-row">
+        <div class="skill-num">1</div>
+        <div><div class="skill-name">Hollow body hold</div><div class="skill-when">Start now — every session</div></div>
+        <div class="skill-badge">Now</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-num">2</div>
+        <div><div class="skill-name">Planche lean</div><div class="skill-when">Start now — end of every push session</div></div>
+        <div class="skill-badge">Now</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-num">3</div>
+        <div><div class="skill-name">Crow pose</div><div class="skill-when">Week 2–3 · builds wrist + straight-arm strength</div></div>
+        <div class="skill-badge">Wk 2–3</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-num">4</div>
+        <div><div class="skill-name">Wall handstand</div><div class="skill-when">Week 3–4 · when pike push-ups feel controlled</div></div>
+        <div class="skill-badge">Wk 3–4</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-num">5</div>
+        <div><div class="skill-name">Tuck front lever</div><div class="skill-when">Week 4–6 · when hanging leg raises are easy</div></div>
+        <div class="skill-badge">Wk 4–6</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-num">6</div>
+        <div><div class="skill-name">Full L-sit</div><div class="skill-when">Week 4–6 · parallel to tuck front lever</div></div>
+        <div class="skill-badge">Wk 4–6</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-num">7</div>
+        <div><div class="skill-name">Banded muscle-up</div><div class="skill-when">When you hit 10 clean pull-ups</div></div>
+        <div class="skill-badge">~Wk 6–8</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-num">8</div>
+        <div><div class="skill-name">Free-standing handstand</div><div class="skill-when">After 30 sec wall HS is solid</div></div>
+        <div class="skill-badge">Month 3+</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-num">9</div>
+        <div><div class="skill-name">Unassisted muscle-up</div><div class="skill-when">After banded MU + 15 clean pull-ups</div></div>
+        <div class="skill-badge">Month 3+</div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-num">10</div>
+        <div><div class="skill-name">Advanced tuck front lever</div><div class="skill-when">After tuck FL holds 10+ sec comfortably</div></div>
+        <div class="skill-badge">Month 4+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NUTRITION -->
+  <div id="nutrition" class="section">
+    <h2 class="section-title">Nutrition</h2>
+    <p class="section-sub">Optimizing strength-to-weight at 67 kg</p>
+
+    <p class="label">Daily macros · ~2100–2300 kcal</p>
+    <div class="card">
+      <div class="macro-row">
+        <div class="macro-head"><span class="macro-name">Protein</span><span class="macro-val">~134g · 2.0 g/kg</span></div>
+        <div class="bar-bg"><div class="bar-fill" style="width: 40%; background: var(--pull);"></div></div>
+      </div>
+      <div class="macro-row">
+        <div class="macro-head"><span class="macro-name">Carbohydrates</span><span class="macro-val">~235g · 45% kcal</span></div>
+        <div class="bar-bg"><div class="bar-fill" style="width: 45%; background: var(--legs);"></div></div>
+      </div>
+      <div class="macro-row" style="margin-bottom:0;">
+        <div class="macro-head"><span class="macro-name">Fats</span><span class="macro-val">~65g · 25% kcal</span></div>
+        <div class="bar-bg"><div class="bar-fill" style="width: 25%; background: var(--push);"></div></div>
+      </div>
+    </div>
+
+    <div class="tip" style="margin-bottom: 1.25rem;">Adjust up if losing weight unintentionally — at 67 kg you're in a great spot for calisthenics.</div>
+
+    <p class="label">Meal timing</p>
+    <div class="card">
+      <div class="ex-row">
+        <div><div class="ex-name">Pre-training snack</div><div class="ex-note">1–2 hours before training</div></div>
+        <div class="ex-detail">Banana + 20g protein</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Lunch — post-training</div><div class="ex-note">Most important meal</div></div>
+        <div class="ex-detail">Rice + chicken + greens</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Dinner ~20:00</div><div class="ex-note">Largest meal of the day</div></div>
+        <div class="ex-detail">Protein + carbs + fat</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Before bed (optional)</div><div class="ex-note">Slow-digesting protein</div></div>
+        <div class="ex-detail">Cottage cheese / Greek yogurt</div>
+      </div>
+    </div>
+
+    <p class="label">Joint health — tendons are the bottleneck</p>
+    <div class="card">
+      <div class="ex-row">
+        <div><div class="ex-name">Oily fish (salmon, sardines)</div></div>
+        <div class="ex-detail">2–3× per week</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Nuts + leafy greens</div></div>
+        <div class="ex-detail">Daily</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Vitamin C (kiwi, peppers)</div><div class="ex-note">Eat 30–60 min before training — helps collagen synthesis</div></div>
+        <div class="ex-detail">Pre-workout</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REST DAYS -->
+  <div id="rest" class="section">
+    <h2 class="section-title">Rest Days</h2>
+    <p class="section-sub">Sunday — or whenever you take a day off</p>
+
+    <div class="tip info" style="margin-bottom: 1.25rem;">
+      <strong>Muscles recover faster than tendons.</strong> Even with strong muscle memory, connective tissue needs real rest. Don't turn rest days into training days.
+    </div>
+
+    <p class="label">Active recovery</p>
+    <div class="card">
+      <div class="ex-row">
+        <div><div class="ex-name">Joint mobility (shoulders + wrists)</div><div class="ex-note">Same as warm-up — gentle, no loading</div></div>
+        <div class="ex-detail">10 min</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Light walking or cycling</div></div>
+        <div class="ex-detail">20–30 min</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Full-body stretching</div><div class="ex-note">Focus on hip flexors, chest, lats, forearms</div></div>
+        <div class="ex-detail">10 min</div>
+      </div>
+    </div>
+
+    <p class="label">Nutrition on rest days</p>
+    <div class="card">
+      <div class="ex-row">
+        <div><div class="ex-name">Protein</div><div class="ex-note">Keep the same — muscles repair on rest days</div></div>
+        <div class="ex-detail">~134g</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Carbs</div><div class="ex-note">Slightly lower — less energy needed</div></div>
+        <div class="ex-detail">~180g</div>
+      </div>
+      <div class="ex-row">
+        <div><div class="ex-name">Sleep</div><div class="ex-note">This is when actual growth happens — 8 hrs if possible</div></div>
+        <div class="ex-detail">Priority</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div><!-- end scroll-area -->
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="showSection('warmup', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    <span>Warm-up</span>
+  </button>
+  <button class="nav-btn" onclick="showSection('split', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <span>Split</span>
+  </button>
+  <button class="nav-btn" onclick="showSection('sessions', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    <span>Sessions</span>
+  </button>
+  <button class="nav-btn" onclick="showSection('progression', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+    <span>Progress</span>
+  </button>
+  <button class="nav-btn" onclick="showSection('skills', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span>Skills</span>
+  </button>
+  <button class="nav-btn" onclick="showSection('nutrition', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+    <span>Nutrition</span>
+  </button>
+  <button class="nav-btn" onclick="showSection('rest', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <span>Rest</span>
+  </button>
+</nav>
+
+<script>
+  // ── Navigation ──
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+    document.querySelector('.scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showDay(id, btn, type) {
+    document.querySelectorAll('.day-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── PWA: Service Worker ──
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+
+  // ── PWA: Android/Chrome install prompt ──
+  let deferredPrompt = null;
+  const banner = document.getElementById('install-banner');
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!localStorage.getItem('pwa-dismissed')) {
+      setTimeout(() => { banner.style.display = 'block'; }, 2000);
+    }
+  });
+
+  document.getElementById('btn-install').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    banner.style.display = 'none';
+  });
+
+  document.getElementById('btn-dismiss').addEventListener('click', () => {
+    banner.style.display = 'none';
+    localStorage.setItem('pwa-dismissed', '1');
+  });
+
+  // ── PWA: iOS Safari install guide ──
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isInStandaloneMode = window.navigator.standalone;
+  const iosGuide = document.getElementById('ios-guide');
+
+  if (isIOS && !isInStandaloneMode && !localStorage.getItem('ios-guide-dismissed')) {
+    setTimeout(() => { iosGuide.style.display = 'block'; }, 2000);
+  }
+
+  document.getElementById('ios-close').addEventListener('click', () => {
+    iosGuide.style.display = 'none';
+    localStorage.setItem('ios-guide-dismissed', '1');
+  });
+</script>
+</body>
+</html>
