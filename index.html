@@ -1017,123 +1017,144 @@
 </nav>
 
 <script>
-  // ── Header collapse ──
+(() => {
+  'use strict';
+
+  // ─────────────────────────────
+  // ELEMENTS
+  // ─────────────────────────────
   const header = document.getElementById('site-header');
-  function toggleHeader() {
-    header.classList.toggle('collapsed');
-    localStorage.setItem('header-collapsed', header.classList.contains('collapsed') ? '1' : '0');
-  }
-  // Restore last state (default collapsed to save space)
-  if (localStorage.getItem('header-collapsed') !== '0') {
-    header.classList.add('collapsed');
-  }
+  const scrollArea = document.querySelector('.scroll-area');
 
-  // ── Navigation ──
-  function showSection(id, btn) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    btn.classList.add('active');
-    document.querySelector('.scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  const installBanner = document.getElementById('install-banner');
+  const btnInstall = document.getElementById('btn-install');
+  const btnDismiss = document.getElementById('btn-dismiss');
 
-  function showDay(id, btn, type) {
-    document.querySelectorAll('.day-section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    btn.classList.add('active');
-  }
+  const iosGuide = document.getElementById('ios-guide');
+  const iosClose = document.getElementById('ios-close');
 
-  // ── PWA: Service Worker ──
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
-
-  // ── PWA: Android/Chrome install prompt ──
+  // ─────────────────────────────
+  // STATE
+  // ─────────────────────────────
   let deferredPrompt = null;
-  const banner = document.getElementById('install-banner');
 
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (!localStorage.getItem('pwa-dismissed')) {
-      setTimeout(() => { banner.style.display = 'block'; }, 2000);
-    }
-  });
-
-  document.getElementById('btn-install').addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    banner.style.display = 'none';
-  });
-
-  document.getElementById('btn-dismiss').addEventListener('click', () => {
-    banner.style.display = 'none';
-    localStorage.setItem('pwa-dismissed', '1');
-  });
-
-  // ── PWA: iOS Safari install guide ──
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isInStandaloneMode = window.navigator.standalone;
-  const iosGuide = document.getElementById('ios-guide');
+  const isStandalone = () =>
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
 
-  if (isIOS && !isInStandaloneMode && !localStorage.getItem('ios-guide-dismissed')) {
-    setTimeout(() => { iosGuide.style.display = 'block'; }, 2000);
+  // ─────────────────────────────
+  // HEADER
+  // ─────────────────────────────
+  function initHeader() {
+    const saved = localStorage.getItem('header-collapsed');
+
+    if (saved !== '0') {
+      header.classList.add('collapsed');
+    }
+
+    window.toggleHeader = () => {
+      header.classList.toggle('collapsed');
+      localStorage.setItem(
+        'header-collapsed',
+        header.classList.contains('collapsed') ? '1' : '0'
+      );
+    };
   }
 
-  document.getElementById('ios-close').addEventListener('click', () => {
-    iosGuide.style.display = 'none';
-    localStorage.setItem('ios-guide-dismissed', '1');
-  });
-  let deferredPrompt;
-const installBanner = document.getElementById('install-banner');
-const btnInstall = document.querySelector('.btn-install');
-const btnDismiss = document.querySelector('.btn-dismiss');
+  // ─────────────────────────────
+  // NAVIGATION
+  // ─────────────────────────────
+  function initNavigation() {
+    window.showSection = (id, btn) => {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
-// 1. Detect if it's iOS (iOS doesn't support the 'beforeinstallprompt' event)
-const isIos = () => {
-  const userAgent = window.navigator.userAgent.toLowerCase();
-  return /iphone|ipad|ipod/.test(userAgent);
-}
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
 
-// 2. Detect if the app is already installed
-const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+      scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  // Prevent Chrome 67 and earlier from automatically showing the prompt
-  e.preventDefault();
-  // Stash the event so it can be triggered later.
-  deferredPrompt = e;
-  // Update UI notify the user they can install the PWA
-  installBanner.style.display = 'block';
-});
+    window.showDay = (id, btn) => {
+      document.querySelectorAll('.day-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
 
-// 3. Handle the click on your custom "Install" button
-btnInstall.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    // Show the browser's install prompt
-    deferredPrompt.prompt();
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`);
-    // We've used the prompt, and can't use it again, throw it away
-    deferredPrompt = null;
-    installBanner.style.display = 'none';
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    };
   }
-});
 
-// 4. Handle Dismiss
-btnDismiss.addEventListener('click', () => {
-  installBanner.style.display = 'none';
-});
+  // ─────────────────────────────
+  // SERVICE WORKER
+  // ─────────────────────────────
+  function initServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+  }
 
-// 5. Logic for iOS specific guide
-if (isIos() && !isInStandaloneMode()) {
-  const iosGuide = document.getElementById('ios-guide');
-  iosGuide.style.display = 'block';
-}
+  // ─────────────────────────────
+  // ANDROID / CHROME INSTALL
+  // ─────────────────────────────
+  function initInstallPrompt() {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+
+      if (!localStorage.getItem('pwa-dismissed')) {
+        setTimeout(() => {
+          installBanner.style.display = 'block';
+        }, 1500);
+      }
+    });
+
+    btnInstall.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+
+      deferredPrompt = null;
+      installBanner.style.display = 'none';
+    });
+
+    btnDismiss.addEventListener('click', () => {
+      installBanner.style.display = 'none';
+      localStorage.setItem('pwa-dismissed', '1');
+    });
+  }
+
+  // ─────────────────────────────
+  // iOS INSTALL GUIDE
+  // ─────────────────────────────
+  function initIOSGuide() {
+    if (isIOS && !isStandalone() && !localStorage.getItem('ios-guide-dismissed')) {
+      setTimeout(() => {
+        iosGuide.style.display = 'block';
+      }, 1500);
+    }
+
+    iosClose.addEventListener('click', () => {
+      iosGuide.style.display = 'none';
+      localStorage.setItem('ios-guide-dismissed', '1');
+    });
+  }
+
+  // ─────────────────────────────
+  // INIT
+  // ─────────────────────────────
+  function init() {
+    initHeader();
+    initNavigation();
+    initServiceWorker();
+    initInstallPrompt();
+    initIOSGuide();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+
+})();
 </script>
 </body>
 
