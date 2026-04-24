@@ -114,9 +114,54 @@
 
   /* ── HEADER ── */
   header {
-    padding: calc(var(--safe-top) + 1.5rem) 1.25rem 1.25rem;
+    padding: calc(var(--safe-top) + 0px) 0 0;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  /* Collapsed: just show a thin bar with a toggle */
+  .header-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(var(--safe-top) + 0.55rem) 1.25rem 0.55rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .header-toggle-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .header-toggle-chevron {
+    width: 20px; height: 20px;
+    color: var(--muted);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  header.collapsed .header-toggle-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Expandable content */
+  .header-body {
+    padding: 0 1.25rem 1.1rem;
+    overflow: hidden;
+    max-height: 300px;
+    transition: max-height 0.35s ease, padding 0.35s ease, opacity 0.3s ease;
+    opacity: 1;
+  }
+
+  header.collapsed .header-body {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
   }
 
   .header-label {
@@ -133,7 +178,7 @@
     line-height: 0.92;
     letter-spacing: 0.02em;
     color: var(--text);
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.1rem;
   }
 
   h1 span { color: var(--accent); }
@@ -520,15 +565,22 @@
 </div>
 
 <!-- ── HEADER ── -->
-<header>
-  <p class="header-label">Personalized Training Plan · 2025</p>
-  <h1>Calis<span>thenics</span><br>Plan</h1>
-  <div class="header-stats">
-    <div class="stat"><span class="stat-val">19</span><span class="stat-label">Years old</span></div>
-    <div class="stat"><span class="stat-val">67kg</span><span class="stat-label">Body weight</span></div>
-    <div class="stat"><span class="stat-val">178cm</span><span class="stat-label">Height</span></div>
-    <div class="stat"><span class="stat-val">30min</span><span class="stat-label">Daily window</span></div>
-    <div class="stat"><span class="stat-val">5–7×</span><span class="stat-label">Per week</span></div>
+<header id="site-header">
+  <div class="header-toggle" onclick="toggleHeader()">
+    <span class="header-toggle-label">Calisthenics Plan · 2025</span>
+    <svg class="header-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="18 15 12 9 6 15"/>
+    </svg>
+  </div>
+  <div class="header-body">
+    <h1>Calis<span>thenics</span><br>Plan</h1>
+    <div class="header-stats">
+      <div class="stat"><span class="stat-val">19</span><span class="stat-label">Years old</span></div>
+      <div class="stat"><span class="stat-val">67kg</span><span class="stat-label">Body weight</span></div>
+      <div class="stat"><span class="stat-val">178cm</span><span class="stat-label">Height</span></div>
+      <div class="stat"><span class="stat-val">30min</span><span class="stat-label">Daily window</span></div>
+      <div class="stat"><span class="stat-val">5–7×</span><span class="stat-label">Per week</span></div>
+    </div>
   </div>
 </header>
 
@@ -965,6 +1017,17 @@
 </nav>
 
 <script>
+  // ── Header collapse ──
+  const header = document.getElementById('site-header');
+  function toggleHeader() {
+    header.classList.toggle('collapsed');
+    localStorage.setItem('header-collapsed', header.classList.contains('collapsed') ? '1' : '0');
+  }
+  // Restore last state (default collapsed to save space)
+  if (localStorage.getItem('header-collapsed') !== '0') {
+    header.classList.add('collapsed');
+  }
+
   // ── Navigation ──
   function showSection(id, btn) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
