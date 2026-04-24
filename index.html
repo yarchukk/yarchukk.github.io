@@ -1087,9 +1087,7 @@
     iosGuide.style.display = 'none';
     localStorage.setItem('ios-guide-dismissed', '1');
   });
-</script>
-</body>
-let deferredPrompt;
+  let deferredPrompt;
 const installBanner = document.getElementById('install-banner');
 const btnInstall = document.querySelector('.btn-install');
 const btnDismiss = document.querySelector('.btn-dismiss');
@@ -1136,4 +1134,7 @@ if (isIos() && !isInStandaloneMode()) {
   const iosGuide = document.getElementById('ios-guide');
   iosGuide.style.display = 'block';
 }
+</script>
+</body>
+
 </html>
