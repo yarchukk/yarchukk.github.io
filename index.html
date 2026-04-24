@@ -1089,4 +1089,51 @@
   });
 </script>
 </body>
+let deferredPrompt;
+const installBanner = document.getElementById('install-banner');
+const btnInstall = document.querySelector('.btn-install');
+const btnDismiss = document.querySelector('.btn-dismiss');
+
+// 1. Detect if it's iOS (iOS doesn't support the 'beforeinstallprompt' event)
+const isIos = () => {
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/.test(userAgent);
+}
+
+// 2. Detect if the app is already installed
+const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent Chrome 67 and earlier from automatically showing the prompt
+  e.preventDefault();
+  // Stash the event so it can be triggered later.
+  deferredPrompt = e;
+  // Update UI notify the user they can install the PWA
+  installBanner.style.display = 'block';
+});
+
+// 3. Handle the click on your custom "Install" button
+btnInstall.addEventListener('click', async () => {
+  if (deferredPrompt) {
+    // Show the browser's install prompt
+    deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    // We've used the prompt, and can't use it again, throw it away
+    deferredPrompt = null;
+    installBanner.style.display = 'none';
+  }
+});
+
+// 4. Handle Dismiss
+btnDismiss.addEventListener('click', () => {
+  installBanner.style.display = 'none';
+});
+
+// 5. Logic for iOS specific guide
+if (isIos() && !isInStandaloneMode()) {
+  const iosGuide = document.getElementById('ios-guide');
+  iosGuide.style.display = 'block';
+}
 </html>
